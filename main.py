@@ -1,86 +1,89 @@
-from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.scrollview import ScrollView
-from kivy.core.window import Window
-from selenium import webdriver
+import tkinter as tk
 from time import sleep
+import os
 
-class CadastroProduto(App):
-    def build(self):
-        # LAYOUT
-        layout1 = GridLayout(cols=1, spacing=10, size_hint_y=None, height=600)
-        layout1.bind(minimum_height=layout1.setter('height'))
+# FUNÇÕES
+def buscar_descricao():
+    url = url_entry.get()
+    if 'https://' not in url:
+        tk.messagebox.showerror(title='Erro', message='Insira um Link para iniciar uma busca.')
+    else:
+        # Código de busca da descrição aqui
+        descricao = 'Descrição do produto'
+        descricao_entry.delete(0, tk.END)
+        descricao_entry.insert(0, descricao)
 
-        layout1.add_widget(Label(text='Hora de cadastrar os produtos!'))
-        layout1.add_widget(Label(text='Nome'))
-        self.nome = TextInput(multiline=False)
-        layout1.add_widget(self.nome)
+def cadastrar_produto():
+    nome = nome_entry.get()
+    gtin = gtin_entry.get()
+    peso = peso_entry.get()
+    preco = preco_entry.get()
+    descricao = descricao_entry.get()
+    # Código de cadastro do produto aqui
+    print(f'Produto {nome} cadastrado com sucesso!')
+    print(f'GTIN: {gtin}')
+    print(f'Peso: {peso}')
+    print(f'Preço: {preco}')
+    print(f'Descrição: {descricao}')
 
-        layout1.add_widget(Label(text='GTIN'))
-        self.gtin = TextInput(multiline=False)
-        layout1.add_widget(self.gtin)
+def novo_produto():
+    nome_entry.delete(0, tk.END)
+    gtin_entry.delete(0, tk.END)
+    peso_entry.delete(0, tk.END)
+    preco_entry.delete(0, tk.END)
+    url_entry.delete(0, tk.END)
+    descricao_entry.delete(0, tk.END)
 
-        layout1.add_widget(Label(text='Peso'))
-        self.peso = TextInput(multiline=False)
-        layout1.add_widget(self.peso)
+# JANELA PRINCIPAL
+janela = tk.Tk()
+janela.title('Cadastro')
+janela.geometry('500x400')
 
-        layout1.add_widget(Label(text='Preço'))
-        self.preco = TextInput(multiline=False)
-        layout1.add_widget(self.preco)
+# WIDGETS
+titulo_label = tk.Label(janela, text='Hora de cadastrar os produtos!')
+titulo_label.pack()
 
-        layout1.add_widget(Label(text='Link/Url'))
-        self.url = TextInput(multiline=False)
-        layout1.add_widget(self.url)
+nome_label = tk.Label(janela, text='Nome')
+nome_label.pack()
+nome_entry = tk.Entry(janela,width=50)
+nome_entry.pack()
 
-        self.buscar = Button(text='Buscar', size_hint_x=None, width=100)
-        self.buscar.bind(on_press=self.buscar_descricao)
-        layout1.add_widget(self.buscar)
+gtin_label = tk.Label(janela, text='GTIN')
+gtin_label.pack()
+gtin_entry = tk.Entry(janela,width=50)
+gtin_entry.pack()
 
-        layout1.add_widget(Label(text='Janela de Saída - Editar Descrição'))
+peso_label = tk.Label(janela, text='Peso')
+peso_label.pack()
+peso_entry = tk.Entry(janela,width=50) 
+peso_entry.pack()
 
-        self.descricao = TextInput(multiline=True)
-        layout1.add_widget(ScrollView(size_hint=(1, None), height=200, pos_hint={'center_x':.5}))
-        layout1.children[8].add_widget(self.descricao)
+preco_label = tk.Label(janela, text='Preço')
+preco_label.pack()
+preco_entry = tk.Entry(janela,width=50)
+preco_entry.pack()
 
-        boxlayout1 = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=40)
-        self.cadastrar = Button(text='Cadastrar Produto')
-        self.cadastrar.bind(on_press=self.cadastrar_produto)
-        boxlayout1.add_widget(self.cadastrar)
+url_label = tk.Label(janela, text='Link/Url')
+url_label.pack()
+url_entry = tk.Entry(janela,width=50)
+url_entry.pack()
 
-        self.novo_produto = Button(text='Novo Produto')
-        self.novo_produto.bind(on_press=self.limpar_campos)
-        boxlayout1.add_widget(self.novo_produto)
+buscar_button = tk.Button(janela, text='Buscar', command=buscar_descricao)
+buscar_button.pack()
 
-        self.finalizar = Button(text='Finalizar Programa')
-        self.finalizar.bind(on_press=self.stop)
-        boxlayout1.add_widget(self.finalizar)
+descricao_label = tk.Label(janela, text='Janela de Saída - Editar Descrição')
+descricao_label.pack()
+descricao_entry = tk.Text(janela, width=60, height=22)
+descricao_entry.pack()
 
-        layout1.add_widget(boxlayout1)
+novo_button = tk.Button(janela, text='Novo\nProduto', width=10, height=2, command=novo_produto)
+novo_button.pack(side=tk.LEFT, padx=10)
 
-        # JANELA
-        self.janela1 = layout1
+finalizar_button = tk.Button(janela, text='Finalizar\n Programa', width=10, height=2, command=janela.quit)
+finalizar_button.pack(side=tk.RIGHT, padx=10)
 
-        return self.janela1
+cadastro_button = tk.Button(janela, text='Cadastrar\nProduto', width=10, height=2, command=cadastrar_produto)
+cadastro_button.pack(side=tk.LEFT, padx=10)
 
-    def buscar_descricao(self, *args):
-        url = self.url.text
-        if 'https://' not in url:
-            self.popup = App.get_running_app().root
-            self.popup.popup = Popup(title='ERRO!!!', content=Label(text='Insira um Link para iniciar uma busca.'), size_hint=(None, None), size=(400, 200))
-            self.popup.popup.open()
-        else:
-            self.driver = webdriver.Chrome()
-            self.driver.get(url)
-            sleep(5)
-            descricao = self.driver.find_element_by_xpath('//h1').text
-            self.descricao.text = descricao
-
-    def cadastrar_produto(self, *args):
-        nome = self.nome.text
-        gtin = self.gtin.text
-        peso = self.peso.text
-        preco = self.preco.text
+# LOOP PRINCIPAL
+janela.mainloop()
